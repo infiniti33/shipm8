@@ -1,10 +1,5 @@
 import React, { useEffect, useCallback, useRef } from 'react';
-import {
-  View,
-  Button,
-  SafeAreaView,
-  TouchableOpacity,
-} from 'react-native';
+import { View, Button, SafeAreaView, TouchableOpacity } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Dropdown } from 'react-native-material-dropdown';
@@ -20,18 +15,17 @@ import {
 import AlertUtils from '../../utils/AlertUtils';
 import SwipeableList from '../common/SwipeableList';
 import CloudProviders from '../../data/CloudProviders';
-import { fetchEntities } from '../Entities/EntitiesSlice';
+import { fetchEntities } from '../../reducers/EntitiesSlice';
 
 const ClustersIndex = ({ navigation }) => {
   const dispatch = useDispatch();
 
-  const currentProvider = useSelector(state =>
-    state.clusters.currentProvider
-  );
+  const currentProvider = useSelector(state => state.clusters.currentProvider);
 
   const clusters = useSelector(state => {
-    return Object.values(state.clusters.byUrl)
-      .filter(cluster => cluster.cloudProvider === currentProvider);
+    return Object.values(state.clusters.byUrl).filter(
+      cluster => cluster.cloudProvider === currentProvider,
+    );
   });
 
   const clustersRef = useRef(clusters);
@@ -45,22 +39,30 @@ const ClustersIndex = ({ navigation }) => {
     });
   }, [dispatch]);
 
-  const handleProviderChange = useCallback(provider => {
-    dispatch(setCurrentProvider(provider));
-  }, [dispatch]);
+  const handleProviderChange = useCallback(
+    provider => {
+      dispatch(setCurrentProvider(provider));
+    },
+    [dispatch],
+  );
 
-  const handleClusterPress = useCallback(cluster => {
-    dispatch(setCurrentCluster(cluster));
-    dispatch(fetchNamespaces(cluster));
-    navigation.navigate('Entities', { title: cluster.name });
-  }, [dispatch, navigation]);
+  const handleClusterPress = useCallback(
+    cluster => {
+      dispatch(setCurrentCluster(cluster));
+      dispatch(fetchNamespaces(cluster));
+      navigation.navigate('Entities', { title: cluster.name });
+    },
+    [dispatch, navigation],
+  );
 
-  const handleDeletePress = useCallback(cluster => {
-    AlertUtils.deleteEntityPrompt(
-      cluster.name,
-      () => dispatch(removeCluster(cluster))
-    );
-  }, [dispatch]);
+  const handleDeletePress = useCallback(
+    cluster => {
+      AlertUtils.deleteEntityPrompt(cluster.name, () =>
+        dispatch(removeCluster(cluster)),
+      );
+    },
+    [dispatch],
+  );
 
   const handleRefresh = useCallback(async () => {
     return await dispatch(checkClusters());
@@ -87,7 +89,7 @@ const ClustersIndex = ({ navigation }) => {
         onRefresh={handleRefresh}
         emptyValue={'Clusters'}
       />
-      < View >
+      <View>
         <TouchableOpacity onPress={() => navigation.navigate('Add Cluster')}>
           <Icon
             style={styles.addClusterIcon}
@@ -101,7 +103,9 @@ const ClustersIndex = ({ navigation }) => {
         <Button
           color="red"
           title="Sign Out"
-          onPress={() => navigation.reset({ routes: [{ name: 'Cloud Login' }] })}
+          onPress={() =>
+            navigation.reset({ routes: [{ name: 'Cloud Login' }] })
+          }
         />
       </View>
     </SafeAreaView>
