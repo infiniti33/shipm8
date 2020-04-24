@@ -62,6 +62,10 @@ class K8sApi {
     }
   }
 
+  static fetchEntities = ({ cluster, entityType }) => {
+    return this.get(`/api/v1/${entityType}`, cluster);
+  }
+
   static fetchPods = async cluster => {
     const podsList = await this.get('/api/v1/pods', cluster);
     return podsList.items;
