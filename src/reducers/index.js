@@ -5,7 +5,7 @@ import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
 
 import awsReducer from './AwsSlice';
 import gcpReducer from './GoogleCloudSlice';
-import podsReducer from './PodsSlice';
+import entitiesReducer from './EntitiesSlice';
 import clustersReducer from './ClustersSlice';
 
 const awsPersistConfig = {
@@ -33,7 +33,7 @@ const rootReducer = combineReducers({
   clusters: persistReducer(clustersPersistConfig, clustersReducer),
   aws: persistReducer(awsPersistConfig, awsReducer),
   gcp: persistReducer(gcpPersistConfig, gcpReducer),
-  pods: podsReducer,
+  entities: entitiesReducer,
 });
 
 export default rootReducer;
