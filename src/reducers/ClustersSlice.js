@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import AwsApi from '../api/AwsApi';
 import K8sApi from '../api/K8sApi';
 import GoogleCloudApi from '../api/GoogleCloudApi';
+import { setTokenExpiration } from './GoogleCloudSlice';
 import { startLoading, loadingFailed } from '../utils/LoadingUtils';
 
 const Clusters = createSlice({
@@ -33,7 +34,7 @@ const Clusters = createSlice({
       state.current = selectedCluster.url;
     },
     setCurrentNamespace(state, action) {
-      const { currentCluster: cluster, namespace } = action.payload;
+      const { cluster, namespace } = action.payload;
       state.byUrl[cluster.url].currentNamespace = namespace;
     },
     setCurrentProvider(state, action) {
@@ -42,7 +43,10 @@ const Clusters = createSlice({
     },
     getAuthTokenFailed: loadingFailed,
     getAuthTokenSuccess(state, action) {
-      const { cluster, token } = action.payload;
+      const { cluster, token, tokenExpiration } = action.payload;
+      if (tokenExpiration) {
+        state.byUrl[cluster.url].tokenExpiration = tokenExpiration;
+      }
       state.byUrl[cluster.url].token = token;
     },
     checkClusterStart(state, action) {
@@ -88,54 +92,63 @@ export const {
 export default Clusters.reducer;
 
 // Thunks
-export const checkClusters = () =>
-  async (dispatch, getState) => {
-    const state = getState();
-    const clusters = Object.values(state.clusters.byUrl);
-    return Promise.all(clusters.map(cluster => {
+export const checkClusters = () => async (dispatch, getState) => {
+  const state = getState();
+  const clusters = Object.values(state.clusters.byUrl);
+  return Promise.all(
+    clusters.map(cluster => {
       return dispatch(checkCluster(cluster));
-    }));
-  };
+    }),
+  );
+};
 
-export const checkCluster = cluster =>
-  async dispatch => {
-    dispatch(checkClusterStart(cluster));
-    const { up, response } = await K8sApi.checkCluster(cluster);
-    dispatch(checkClusterSuccess({ cluster, up, response }));
-    return Promise.resolve();
-  };
+export const checkCluster = cluster => async dispatch => {
+  dispatch(checkClusterStart(cluster));
+  const { up, response } = await K8sApi.checkCluster(cluster);
+  dispatch(checkClusterSuccess({ cluster, up, response }));
+  return Promise.resolve();
+};
 
-export const fetchNamespaces = cluster =>
-  async dispatch => {
-    try {
-      dispatch(fetchNamespacesStart());
-      const clusterWithToken = await dispatch(getAuthToken(cluster));
-      const namespaces = await K8sApi.fetchNamespaces(clusterWithToken);
-      dispatch(fetchNamespacesSuccess({ cluster: clusterWithToken, namespaces }));
-    } catch (err) {
-      dispatch(fetchNamespacesFailed(err.toString()));
-      return Promise.reject(err);
+export const fetchNamespaces = cluster => async dispatch => {
+  try {
+    dispatch(fetchNamespacesStart());
+    const clusterWithToken = await dispatch(getAuthToken(cluster));
+    const namespaces = await K8sApi.fetchNamespaces(clusterWithToken);
+    dispatch(fetchNamespacesSuccess({ cluster: clusterWithToken, namespaces }));
+  } catch (err) {
+    dispatch(fetchNamespacesFailed(err.toString()));
+    return Promise.reject(err);
+  }
+};
+
+export const getAuthToken = cluster => async (dispatch, getState) => {
+  try {
+    let state = getState();
+    let token;
+    if (cluster.cloudProvider === 'aws') {
+      token = AwsApi.getAuthToken(cluster.name, state.aws.credentials);
     }
-  };
-
-export const getAuthToken = cluster =>
-  async (dispatch, getState) => {
-    try {
-      let state = getState();
-      let token;
-
-      if (cluster.cloudProvider === 'aws') {
-        token = AwsApi.getAuthToken(cluster.name, state.aws.credentials);
-      } else if (cluster.cloudProvider === 'gcp') {
-        token = await GoogleCloudApi.refreshAccessToken(state.gcp.user.refreshToken);
+    if (cluster.cloudProvider === 'gcp') {
+      if (
+        // If access token expiration is not set or has expired
+        !state.gcp.user.tokenExpiration ||
+        state.gcp.user.tokenExpiration - Date.now() <= 60 * 1000
+      ) {
+        // Fetch new token and reset expiration
+        token = await GoogleCloudApi.refreshAccessToken(
+          state.gcp.user.refreshToken,
+        );
+        dispatch(setTokenExpiration(Date.now() + 3600 * 1000));
+      } else {
+        // Otherwise, use existing token
+        token = cluster.token;
       }
-
-      dispatch(getAuthTokenSuccess({ cluster, token }));
-      state = getState();
-      const clusterWithToken = state.clusters.byUrl[cluster.url];
-      return Promise.resolve(clusterWithToken);
-    } catch (err) {
-      dispatch(getAuthTokenFailed(err.toString()));
-      return Promise.reject(err);
     }
-  };
+    dispatch(getAuthTokenSuccess({ cluster, token }));
+    state = getState();
+    return state.clusters.byUrl[cluster.url];
+  } catch (err) {
+    dispatch(getAuthTokenFailed(err.toString()));
+    return Promise.reject(err);
+  }
+};
