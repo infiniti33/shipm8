@@ -6,10 +6,10 @@ import { TransitionPresets } from '@react-navigation/stack';
 import PodInfo from '../components/Pods/PodInfo';
 import Loading from '../components/common/Loading';
 import Welcome from '../components/common/Welcome';
-import PodsDisplay from '../components/Pods/PodsDisplay';
 import CloudLogin from '../components/common/CloudLogin';
 import AddCluster from '../components/Clusters/AddCluster';
 import ClustersIndex from '../components/Clusters/ClustersIndex';
+import EntitiesDisplay from '../components/Entities/EntitiesDisplay';
 
 const RootStack = createStackNavigator();
 
@@ -27,9 +27,7 @@ const RootStackScreen = ({ navigation, route }) => {
   const INITIAL_ROUTE_NAME = awsSignedIn || gcpSignedIn ? 'ShipM8' : 'Welcome';
 
   if (!isReady) {
-    return (
-      <Loading />
-    );
+    return <Loading />;
   }
 
   return (
@@ -78,7 +76,13 @@ const RootStackScreen = ({ navigation, route }) => {
           },
         }}
       />
-      <RootStack.Screen name="Pods" component={PodsDisplay} />
+      <RootStack.Screen
+        name="Entities"
+        component={EntitiesDisplay}
+        options={{
+          headerBackTitle: ' ',
+        }}
+      />
       <RootStack.Screen name="Pod Details" component={PodInfo} />
     </RootStack.Navigator>
   );
