@@ -14,6 +14,10 @@ const GoogleCloud = createSlice({
     clusters: null,
   },
   reducers: {
+    setTokenExpiration(state, action) {
+      const tokenExpiration = action.payload;
+      state.user.tokenExpiration = tokenExpiration;
+    },
     fetchGcpProjectsStart: startLoading,
     fetchGcpProjectsFailed: loadingFailed,
     fetchGcpProjectsSuccess(state, action) {
@@ -52,6 +56,7 @@ const GoogleCloud = createSlice({
 });
 
 export const {
+  setTokenExpiration,
   fetchGcpProjectsStart,
   fetchGcpProjectsFailed,
   fetchGcpProjectsSuccess,
@@ -72,85 +77,99 @@ export const {
 export default GoogleCloud.reducer;
 
 // Thunks
-export const googleSignIn = () =>
-  async dispatch => {
-    try {
-      dispatch(googleSignInStart());
-      const user = await GoogleCloudApi.signIn();
-      if (!user) {
-        dispatch(googleSignInFailed('Sign in Canceled'));
-        return Promise.resolve('Sign in Canceled');
-      }
-      dispatch(googleSignInSuccess(user));
-      return Promise.resolve(true);
-    } catch (err) {
-      dispatch(googleSignInFailed(err.toString()));
-      return Promise.reject(err);
+export const googleSignIn = () => async dispatch => {
+  try {
+    dispatch(googleSignInStart());
+    const user = await GoogleCloudApi.signIn();
+    if (!user) {
+      dispatch(googleSignInFailed('Sign in Canceled'));
+      return Promise.resolve('Sign in Canceled');
     }
-  };
+    dispatch(googleSignInSuccess(user));
+    return Promise.resolve(true);
+  } catch (err) {
+    dispatch(googleSignInFailed(err.toString()));
+    return Promise.reject(err);
+  }
+};
 
-export const googleSignOut = () =>
-  async dispatch => {
-    try {
-      dispatch(googleSignOutStart());
-      await GoogleCloudApi.signOut();
-      dispatch(googleSignOutSuccess());
-      return Promise.resolve();
-    } catch (err) {
-      dispatch(googleSignOutFailed(err.toString()));
-      return Promise.reject(err);
-    }
-  };
+export const googleSignOut = () => async dispatch => {
+  try {
+    dispatch(googleSignOutStart());
+    await GoogleCloudApi.signOut();
+    dispatch(googleSignOutSuccess());
+    return Promise.resolve();
+  } catch (err) {
+    dispatch(googleSignOutFailed(err.toString()));
+    return Promise.reject(err);
+  }
+};
 
-export const fetchGkeClusters = (projectId, zone) =>
-  async (dispatch, getState) => {
-    try {
-      const state = getState();
-      dispatch(fetchGkeClustersStart());
-      const refreshToken = state.gcp.user.refreshToken;
-      const clusters = await GoogleCloudApi.fetchGkeClusters({ projectId, zone, refreshToken });
-      dispatch(fetchGkeClustersSuccess(clusters));
-      return Promise.resolve();
-    } catch (err) {
-      dispatch(fetchGkeClustersFailed(err.toString()));
-      return Promise.reject(err);
-    }
-  };
+export const fetchGkeClusters = (projectId, zone) => async (
+  dispatch,
+  getState,
+) => {
+  try {
+    const state = getState();
+    dispatch(fetchGkeClustersStart());
+    const refreshToken = state.gcp.user.refreshToken;
+    const clusters = await GoogleCloudApi.fetchGkeClusters({
+      projectId,
+      zone,
+      refreshToken,
+    });
+    dispatch(fetchGkeClustersSuccess(clusters));
+    return Promise.resolve();
+  } catch (err) {
+    dispatch(fetchGkeClustersFailed(err.toString()));
+    return Promise.reject(err);
+  }
+};
 
-export const fetchGcpProjects = pageToken =>
-  async (dispatch, getState) => {
-    try {
-      const state = getState();
-      dispatch(fetchGcpProjectsStart());
-      const refreshToken = state.gcp.user.refreshToken;
-      const projects = await GoogleCloudApi.fetchProjects({ pageToken, refreshToken });
-      if (projects.error) {
-        dispatch(fetchGcpProjectsFailed(projects.error.toString()));
-        return Promise.reject(projects.error.message);
-      }
-      dispatch(fetchGcpProjectsSuccess(projects.projects));
-      if (projects.nextPageToken) { return dispatch(fetchGcpProjects(projects.nextPageToken)); }
-      return Promise.resolve();
-    } catch (err) {
-      dispatch(fetchGcpProjectsFailed(err.toString()));
-      return Promise.reject(err);
+export const fetchGcpProjects = pageToken => async (dispatch, getState) => {
+  try {
+    const state = getState();
+    dispatch(fetchGcpProjectsStart());
+    const refreshToken = state.gcp.user.refreshToken;
+    const projects = await GoogleCloudApi.fetchProjects({
+      pageToken,
+      refreshToken,
+    });
+    if (projects.error) {
+      dispatch(fetchGcpProjectsFailed(projects.error.toString()));
+      return Promise.reject(projects.error.message);
     }
-  };
+    dispatch(fetchGcpProjectsSuccess(projects.projects));
+    if (projects.nextPageToken) {
+      return dispatch(fetchGcpProjects(projects.nextPageToken));
+    }
+    return Promise.resolve();
+  } catch (err) {
+    dispatch(fetchGcpProjectsFailed(err.toString()));
+    return Promise.reject(err);
+  }
+};
 
-export const fetchGcpZones = (projectId, pageToken) =>
-  async (dispatch, getState) => {
-    try {
-      dispatch(fetchGcpZonesStart());
-      const state = getState();
-      const refreshToken = state.gcp.user.refreshToken;
-      const zones = await GoogleCloudApi.fetchZones({ projectId, pageToken, refreshToken });
-      dispatch(fetchGcpZonesSuccess(zones.zones));
-      if (zones.nextPageToken) {
-        return dispatch(fetchGcpZones(projectId, zones.nextPageToken));
-      }
-      return Promise.resolve();
-    } catch (err) {
-      dispatch(fetchGcpZonesFailed(err.toString()));
-      return Promise.reject(err);
+export const fetchGcpZones = (projectId, pageToken) => async (
+  dispatch,
+  getState,
+) => {
+  try {
+    dispatch(fetchGcpZonesStart());
+    const state = getState();
+    const refreshToken = state.gcp.user.refreshToken;
+    const zones = await GoogleCloudApi.fetchZones({
+      projectId,
+      pageToken,
+      refreshToken,
+    });
+    dispatch(fetchGcpZonesSuccess(zones.zones));
+    if (zones.nextPageToken) {
+      return dispatch(fetchGcpZones(projectId, zones.nextPageToken));
     }
-  };
+    return Promise.resolve();
+  } catch (err) {
+    dispatch(fetchGcpZonesFailed(err.toString()));
+    return Promise.reject(err);
+  }
+};
