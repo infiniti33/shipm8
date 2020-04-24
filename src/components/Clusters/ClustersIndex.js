@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Button,
@@ -20,6 +20,7 @@ import {
 import AlertUtils from '../../utils/AlertUtils';
 import SwipeableList from '../common/SwipeableList';
 import CloudProviders from '../../data/CloudProviders';
+import { fetchEntities } from '../Entities/EntitiesSlice';
 
 const ClustersIndex = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -33,8 +34,15 @@ const ClustersIndex = ({ navigation }) => {
       .filter(cluster => cluster.cloudProvider === currentProvider);
   });
 
+  const clustersRef = useRef(clusters);
+
   useEffect(() => {
     dispatch(checkClusters());
+    clustersRef.current.forEach(cluster => {
+      const clusterUrl = cluster.url;
+      dispatch(fetchEntities({ clusterUrl, entityType: 'pods' }));
+      dispatch(fetchEntities({ clusterUrl, entityType: 'services' }));
+    });
   }, [dispatch]);
 
   const handleProviderChange = useCallback(provider => {
@@ -44,7 +52,7 @@ const ClustersIndex = ({ navigation }) => {
   const handleClusterPress = useCallback(cluster => {
     dispatch(setCurrentCluster(cluster));
     dispatch(fetchNamespaces(cluster));
-    navigation.navigate('Pods');
+    navigation.navigate('Entities', { title: cluster.name });
   }, [dispatch, navigation]);
 
   const handleDeletePress = useCallback(cluster => {
