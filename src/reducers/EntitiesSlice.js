@@ -1,9 +1,9 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createSelector } from '@reduxjs/toolkit';
 
 import K8sApi from '../api/K8sApi';
 import AlertUtils from '../utils/AlertUtils';
-import { getAuthToken } from './ClustersSlice';
 import { startLoading, loadingFailed } from '../utils/LoadingUtils';
+import { getAuthToken, currentNamespaceSelector } from './ClustersSlice';
 
 const Entities = createSlice({
   name: 'Entities',
@@ -11,22 +11,19 @@ const Entities = createSlice({
     isLoading: false,
     error: null,
     entities: ['Pods', 'Services'],
-    currentEntityIndex: 0,
-    pods: {
-      current: null,
-    },
-    services: {
-      current: null,
-    },
+    currentEntityTypeIndex: 0,
+    current: null,
+    pods: {},
+    services: {},
   },
   reducers: {
     setCurrentEntity(state, action) {
-      const { entity, entityType } = action.payload;
-      state[entityType].current = entity.metadata.uid;
+      const entity = action.payload;
+      state.current = entity;
     },
-    setCurrentEntityType(state, action) {
+    setCurrentEntityTypeIndex(state, action) {
       const entityIndex = action.payload;
-      state.currentEntityIndex = entityIndex;
+      state.currentEntityTypeIndex = entityIndex;
     },
     deleteEntityStart: startLoading,
     deleteEntityFailed: loadingFailed,
@@ -47,7 +44,7 @@ const Entities = createSlice({
 
 export const {
   setCurrentEntity,
-  setCurrentEntityType,
+  setCurrentEntityTypeIndex,
   deleteEntityStart,
   deleteEntityFailed,
   deleteEntitySuccess,
@@ -58,6 +55,40 @@ export const {
 
 export default Entities.reducer;
 
+// Selectors
+export const allEntitiesTypesSelector = state => state.entities.entities;
+
+export const currentEntitySelector = state => state.entities.current;
+
+export const currentEntityTypeIndexSelector = state =>
+  state.entities.currentEntityTypeIndex;
+
+export const currentEntityTypeSelector = state =>
+  state.entities.entities[state.entities.currentEntityTypeIndex].toLowerCase();
+
+export const entitiesForEntityTypeAndClusterSelector = state =>
+  state.entities[
+    state.entities.entities[state.entities.currentEntityTypeIndex].toLowerCase()
+  ][state.clusters.current];
+
+export const entitiesFilteredByNamespaceSelector = createSelector(
+  currentNamespaceSelector,
+  entitiesForEntityTypeAndClusterSelector,
+  (namespace, entities) => {
+    if (entities) {
+      return Object.values(entities).filter(entity => {
+        if (!namespace || namespace === 'All Namespaces') {
+          return true;
+        }
+        return entity.metadata.namespace === namespace;
+      });
+    }
+    return [];
+  },
+);
+
+export const entitiesLoadingSelector = state => state.entities.isLoading;
+
 // Thunks
 export const fetchEntities = ({ clusterUrl, entityType }) => async (
   dispatch,
@@ -65,9 +96,6 @@ export const fetchEntities = ({ clusterUrl, entityType }) => async (
 ) => {
   try {
     const state = getState();
-    if (state.isLoading) {
-      return;
-    }
     const cluster = state.clusters.byUrl[clusterUrl];
     dispatch(fetchEntitiesStart());
     const clusterWithAuth = await dispatch(getAuthToken(cluster));
