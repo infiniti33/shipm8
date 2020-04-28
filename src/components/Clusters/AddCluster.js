@@ -1,66 +1,60 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  SafeAreaView,
-} from 'react-native';
+import { View, Text, ScrollView, SafeAreaView } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Dropdown } from 'react-native-material-dropdown';
 import EStyleSheet from 'react-native-extended-stylesheet';
 
 import {
+  addCluster,
+  fetchNamespaces,
+  setCurrentProvider,
+  currentProviderSelector,
+  currentProviderLoadingSelector,
+  clustersForCurrentProviderSelector,
+} from '../../reducers/ClustersSlice';
+import {
   fetchGkeClusters,
   fetchGcpProjects,
+  gcpProjectsSelector,
 } from '../../reducers/GoogleCloudSlice';
 import Loading from '../common/Loading';
 import Regions from '../../data/Regions';
 import SwipeableList from '../common/SwipeableList';
 import { fetchEksClusters } from '../../reducers/AwsSlice';
-import { addCluster, setCurrentProvider } from '../../reducers/ClustersSlice';
 
 const AddCluster = ({ navigation }) => {
   const dispatch = useDispatch();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [dropdownValue, setDropdownValue] = useState(null);
 
-  const currentProvider = useSelector(state => state.clusters.currentProvider);
-  const isLoading = useSelector(state => state[currentProvider].isLoading);
-  const clusters = useSelector(state => {
-    if (state[currentProvider].clusters) {
-      return state[currentProvider].clusters;
-    }
-    return [];
-  });
-
-  const gcpProjects = useSelector(state => {
-    if (state.gcp.projects) {
-      return state.gcp.projects.map(project => {
-        return {
-          label: project.name,
-          value: project.projectId,
-        };
-      });
-    }
-    return null;
-  });
+  // Redux Selectors
+  const gcpProjects = useSelector(gcpProjectsSelector);
+  const currentProvider = useSelector(currentProviderSelector);
+  const isLoading = useSelector(currentProviderLoadingSelector);
+  const clusters = useSelector(clustersForCurrentProviderSelector);
 
   useEffect(() => {
     currentProvider === 'gcp' && dispatch(fetchGcpProjects());
   }, [currentProvider, dispatch]);
 
   const fetchClusters = async value => {
-    if (!value) { value = dropdownValue; }
+    if (!value) {
+      value = dropdownValue;
+    }
     return currentProvider === 'aws'
       ? await dispatch(fetchEksClusters(value))
       : await dispatch(fetchGkeClusters(value));
   };
 
-  const handleClusterPress = useCallback(cluster => {
-    dispatch(addCluster(cluster));
-    dispatch(setCurrentProvider(cluster.cloudProvider));
-    navigation.goBack();
-  }, [dispatch, navigation]);
+  const handleClusterPress = useCallback(
+    cluster => {
+      dispatch(addCluster(cluster));
+      dispatch(fetchNamespaces(cluster));
+      dispatch(setCurrentProvider(cluster.cloudProvider));
+      navigation.goBack();
+    },
+    [dispatch, navigation],
+  );
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -79,8 +73,7 @@ const AddCluster = ({ navigation }) => {
       : gcpProjects || [{ value: 'Loading' }];
   };
 
-  const regionOrProjectLabel = currentProvider === 'aws'
-    ? 'Region' : 'Project';
+  const regionOrProjectLabel = currentProvider === 'aws' ? 'Region' : 'Project';
 
   const setNoValueSelectedText = () => {
     return `Please select a ${regionOrProjectLabel} to view
@@ -110,25 +103,25 @@ const AddCluster = ({ navigation }) => {
             <Loading />
           </ScrollView>
         ) : (
-            <View style={styles.clusterScroll}>
-              {dropdownValue && (
-                <SwipeableList
-                  listData={clusters}
-                  onRefresh={handleRefresh}
-                  onItemPress={handleClusterPress}
-                  onDeletePress={null}
-                  emptyValue={'Clusters'}
-                />
-              )}
-              {!dropdownValue && (
-                <Text style={styles.noContentText}>
-                  {setNoValueSelectedText()}
-                </Text>
-              )}
-            </View>
-          )}
+          <View style={styles.clusterScroll}>
+            {dropdownValue && (
+              <SwipeableList
+                listData={clusters}
+                onRefresh={handleRefresh}
+                onItemPress={handleClusterPress}
+                onDeletePress={null}
+                emptyValue={'Clusters'}
+              />
+            )}
+            {!dropdownValue && (
+              <Text style={styles.noContentText}>
+                {setNoValueSelectedText()}
+              </Text>
+            )}
+          </View>
+        )}
       </SafeAreaView>
-    </View >
+    </View>
   );
 };
 
