@@ -45,34 +45,41 @@ export const {
 
 export default Aws.reducer;
 
-export const checkAwsCredentials = credentials =>
-  async dispatch => {
-    try {
-      dispatch(checkAwsCredentialsStart());
-      const data = await AwsApi.fetchEksClusterNames('us-west-2', credentials);
-      if (data) {
-        dispatch(checkAwsCredentialsSuccess(credentials));
-        return true;
-      } else {
-        dispatch(checkAwsCredentialsFailed());
-        return false;
-      }
-    } catch (err) {
-      dispatch(checkAwsCredentialsFailed());
-      return Promise.resolve(err);
-    }
-  };
+// Selectors
+export const awsLoadingSelector = state => state.aws.isLoading;
 
-export const fetchEksClusters = region =>
-  async (dispatch, getState) => {
-    try {
-      dispatch(fetchEksClustersStart());
-      const state = getState();
-      const AwsCredentials = state.aws.credentials;
-      const clusters = await AwsApi.describeAllEksClusters(region, AwsCredentials);
-      dispatch(fetchEksClustersSuccess(clusters));
-      return Promise.resolve();
-    } catch (err) {
-      dispatch(fetchEksClustersFailed(err.toString()));
+export const awsClustersSelector = state => state.aws.clusters;
+
+// Thunks
+export const checkAwsCredentials = credentials => async dispatch => {
+  try {
+    dispatch(checkAwsCredentialsStart());
+    const data = await AwsApi.fetchEksClusterNames('us-west-2', credentials);
+    if (data) {
+      dispatch(checkAwsCredentialsSuccess(credentials));
+      return true;
+    } else {
+      dispatch(checkAwsCredentialsFailed());
+      return false;
     }
-  };
+  } catch (err) {
+    dispatch(checkAwsCredentialsFailed());
+    return Promise.resolve(err);
+  }
+};
+
+export const fetchEksClusters = region => async (dispatch, getState) => {
+  try {
+    dispatch(fetchEksClustersStart());
+    const state = getState();
+    const AwsCredentials = state.aws.credentials;
+    const clusters = await AwsApi.describeAllEksClusters(
+      region,
+      AwsCredentials,
+    );
+    dispatch(fetchEksClustersSuccess(clusters));
+    return Promise.resolve();
+  } catch (err) {
+    dispatch(fetchEksClustersFailed(err.toString()));
+  }
+};
