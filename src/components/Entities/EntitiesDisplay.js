@@ -8,13 +8,22 @@ import {
   deleteEntity,
   fetchEntities,
   setCurrentEntity,
-  setCurrentEntityType,
+  setCurrentEntityTypeIndex,
+  allEntitiesTypesSelector,
+  currentEntityTypeIndexSelector,
+  entitiesLoadingSelector,
+  currentEntityTypeSelector,
+  entitiesFilteredByNamespaceSelector,
 } from '../../reducers/EntitiesSlice';
+import {
+  setCurrentNamespace,
+  currentClusterSelector,
+  currentNamespaceSelector,
+} from '../../reducers/ClustersSlice';
 import Loading from '../common/Loading';
 import AlertUtils from '../../utils/AlertUtils';
+import SegmentedTabs from '../common/SegmentedTabs';
 import SwipeableList from '../common/SwipeableList';
-import EntitiesSegmentedTabs from '../common/SegmentedTabs';
-import { setCurrentNamespace } from '../../reducers/ClustersSlice';
 
 const EntitiesDisplay = ({ navigation, route }) => {
   navigation.setOptions({
@@ -24,58 +33,35 @@ const EntitiesDisplay = ({ navigation, route }) => {
   const dispatch = useDispatch();
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const activeTabIndex = useSelector(
-    state => state.entities.currentEntityIndex,
-  );
-  const tabs = useSelector(state => state.entities.entities);
-  const isLoading = useSelector(state => state.entities.isLoading);
-  const cluster = useSelector(
-    state => state.clusters.byUrl[state.clusters.current],
-  );
-  const currentNamespace = useSelector(
-    state => state.clusters.byUrl[state.clusters.current].currentNamespace,
-  );
-  const entityType = useSelector(state =>
-    state.entities.entities[state.entities.currentEntityIndex].toLowerCase(),
-  );
+  // Redux Selectors
+  const tabs = useSelector(allEntitiesTypesSelector);
+  const cluster = useSelector(currentClusterSelector);
+  const isLoading = useSelector(entitiesLoadingSelector);
+  const entityType = useSelector(currentEntityTypeSelector);
+  const activeTabIndex = useSelector(currentEntityTypeIndexSelector);
+  const currentNamespace = useSelector(currentNamespaceSelector);
+  const entities = useSelector(entitiesFilteredByNamespaceSelector);
 
   useEffect(() => {
     const clusterUrl = cluster.url;
     dispatch(fetchEntities({ clusterUrl, entityType }));
   }, [entityType, dispatch, cluster.url]);
 
-  const filterEntities = entitiesToFilter => {
-    return entitiesToFilter.filter(entity => {
-      if (!currentNamespace || currentNamespace === 'All Namespaces') {
-        return true;
-      }
-      return entity.metadata.namespace === currentNamespace;
-    });
-  };
-
-  const entities = useSelector(state => {
-    if (state.entities[entityType][cluster.url]) {
-      const allEntities = Object.values(
-        state.entities[entityType][cluster.url],
-      );
-      return filterEntities(allEntities);
-    }
-    return [];
-  });
-
   const handleNamespaceChange = useCallback(
     namespace => {
-      dispatch(setCurrentNamespace({ cluster, namespace }));
+      if (namespace !== currentNamespace) {
+        dispatch(setCurrentNamespace({ cluster, namespace }));
+      }
     },
-    [cluster, dispatch],
+    [cluster, currentNamespace, dispatch],
   );
 
   const handleEntityPress = useCallback(
     entity => {
-      dispatch(setCurrentEntity({ entity, entityType }));
-      navigation.navigate('Entity Details');
+      dispatch(setCurrentEntity(entity));
+      navigation.navigate('Pod Details');
     },
-    [entityType, dispatch, navigation],
+    [dispatch, navigation],
   );
 
   const handleDeletePress = useCallback(
@@ -102,8 +88,8 @@ const EntitiesDisplay = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <EntitiesSegmentedTabs
-        onTabPress={idx => dispatch(setCurrentEntityType(idx))}
+      <SegmentedTabs
+        onTabPress={idx => dispatch(setCurrentEntityTypeIndex(idx))}
         tabs={tabs}
         activeTabIndex={activeTabIndex}
       />
@@ -122,7 +108,6 @@ const EntitiesDisplay = ({ navigation, route }) => {
           onChangeText={handleNamespaceChange}
         />
       </View>
-
       <View style={styles.podScroll}>
         {isLoading && !isRefreshing && !entities.length ? (
           <ScrollView>
