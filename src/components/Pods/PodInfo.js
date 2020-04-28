@@ -1,29 +1,14 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  Image,
-  ScrollView,
-  SafeAreaView,
-} from 'react-native';
+import { View, Text, Image, ScrollView, SafeAreaView } from 'react-native';
 import { useSelector } from 'react-redux';
-import { Badge, Divider } from 'react-native-elements';
+import { Divider } from 'react-native-elements';
 import EStyleSheet from 'react-native-extended-stylesheet';
 
-const PodInfo = ({ navigation }) => {
-  const currentPod = useSelector(
-    state => state.pods.byCluster[state.clusters.current][state.pods.current],
-  );
+import EntityStatus from '../common/EntityStatus';
+import { currentEntitySelector } from '../../reducers/EntitiesSlice';
 
-  const checkStatus = text => {
-    if (text === 'Running') {
-      return 'success';
-    } else if (text === 'Pending') {
-      return 'warning';
-    } else {
-      return 'error';
-    }
-  };
+const PodInfo = ({ navigation }) => {
+  const currentPod = useSelector(currentEntitySelector);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -51,7 +36,7 @@ const PodInfo = ({ navigation }) => {
                 Status:{' '}
                 <Text style={styles.innerText}>{currentPod.status.phase}</Text>
                 <View style={{ marginBottom: 2, marginLeft: 10 }}>
-                  <Badge status={checkStatus(currentPod.status.phase)} />
+                  <EntityStatus status={currentPod.status.phase} />
                 </View>
               </Text>
               <Divider />
