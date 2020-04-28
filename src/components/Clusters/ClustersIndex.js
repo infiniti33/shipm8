@@ -11,6 +11,8 @@ import {
   fetchNamespaces,
   setCurrentCluster,
   setCurrentProvider,
+  currentProviderSelector,
+  clustersFilteredByCloudProviderSelector,
 } from '../../reducers/ClustersSlice';
 import AlertUtils from '../../utils/AlertUtils';
 import SwipeableList from '../common/SwipeableList';
@@ -20,14 +22,11 @@ import { fetchEntities } from '../../reducers/EntitiesSlice';
 const ClustersIndex = ({ navigation }) => {
   const dispatch = useDispatch();
 
-  const currentProvider = useSelector(state => state.clusters.currentProvider);
+  // Redux Selectors
+  const currentProvider = useSelector(currentProviderSelector);
+  const clusters = useSelector(clustersFilteredByCloudProviderSelector);
 
-  const clusters = useSelector(state => {
-    return Object.values(state.clusters.byUrl).filter(
-      cluster => cluster.cloudProvider === currentProvider,
-    );
-  });
-
+  // Using a ref to allow use in useEffect without endless rerenders
   const clustersRef = useRef(clusters);
 
   useEffect(() => {
