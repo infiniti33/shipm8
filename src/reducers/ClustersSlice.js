@@ -1,9 +1,14 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createSelector } from '@reduxjs/toolkit';
 
+import {
+  setTokenExpiration,
+  gcpClustersSelector,
+  gcpLoadingSelector,
+} from './GoogleCloudSlice';
 import AwsApi from '../api/AwsApi';
 import K8sApi from '../api/K8sApi';
 import GoogleCloudApi from '../api/GoogleCloudApi';
-import { setTokenExpiration } from './GoogleCloudSlice';
+import { awsClustersSelector, awsLoadingSelector } from './AwsSlice';
 import { startLoading, loadingFailed } from '../utils/LoadingUtils';
 
 const Clusters = createSlice({
@@ -75,21 +80,71 @@ const Clusters = createSlice({
 
 export const {
   addCluster,
-  removeCluster,
-  updateCluster,
-  setCurrentCluster,
-  setCurrentNamespace,
-  setCurrentProvider,
-  getAuthTokenSuccess,
-  getAuthTokenFailed,
   checkClusterStart,
   checkClusterSuccess,
   fetchNamespacesStart,
   fetchNamespacesSuccess,
   fetchNamespacesFailed,
+  getAuthTokenSuccess,
+  getAuthTokenFailed,
+  removeCluster,
+  setCurrentCluster,
+  setCurrentNamespace,
+  setCurrentProvider,
+  updateCluster,
 } = Clusters.actions;
 
 export default Clusters.reducer;
+
+// Selectors
+export const allClustersSelector = state => state.clusters.byUrl;
+
+export const currentClusterSelector = state =>
+  state.clusters.byUrl[state.clusters.current];
+
+export const currentNamespaceSelector = state =>
+  state.clusters.byUrl[state.clusters.current].currentNamespace;
+
+export const currentProviderSelector = state => state.clusters.currentProvider;
+
+export const currentProviderLoadingSelector = createSelector(
+  currentProviderSelector,
+  awsLoadingSelector,
+  gcpLoadingSelector,
+  (provider, awsLoading, gcpLoading) => {
+    if (provider === 'aws') {
+      return awsLoading;
+    }
+    if (provider === 'gcp') {
+      return gcpLoading;
+    }
+  },
+);
+
+export const clustersForCurrentProviderSelector = createSelector(
+  currentProviderSelector,
+  awsClustersSelector,
+  gcpClustersSelector,
+  (cloudProvider, awsClusters, gcpClusters) => {
+    if (cloudProvider === 'aws' && awsClusters) {
+      return awsClusters;
+    }
+    if (cloudProvider === 'gcp' && gcpClusters) {
+      return gcpClusters;
+    }
+    return [];
+  },
+);
+
+export const clustersFilteredByCloudProviderSelector = createSelector(
+  currentProviderSelector,
+  allClustersSelector,
+  (cloudProvider, clusters) => {
+    return Object.values(clusters).filter(
+      cluster => cluster.cloudProvider === cloudProvider,
+    );
+  },
+);
 
 // Thunks
 export const checkClusters = () => async (dispatch, getState) => {
@@ -130,7 +185,9 @@ export const getAuthToken = cluster => async (dispatch, getState) => {
     }
     if (cluster.cloudProvider === 'gcp') {
       if (
-        // If access token expiration is not set or has expired
+        // If access token does not exist,
+        // Or token expiration is not set or has expired
+        !cluster.token ||
         !state.gcp.user.tokenExpiration ||
         state.gcp.user.tokenExpiration - Date.now() <= 60 * 1000
       ) {
