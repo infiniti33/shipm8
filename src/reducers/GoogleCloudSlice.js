@@ -76,6 +76,23 @@ export const {
 
 export default GoogleCloud.reducer;
 
+// Selectors
+export const gcpProjectsSelector = state => {
+  if (state.gcp.projects) {
+    return state.gcp.projects.map(project => {
+      return {
+        label: project.name,
+        value: project.projectId,
+      };
+    });
+  }
+  return null;
+};
+
+export const gcpClustersSelector = state => state.gcp.clusters;
+
+export const gcpLoadingSelector = state => state.gcp.isLoading;
+
 // Thunks
 export const googleSignIn = () => async dispatch => {
   try {
