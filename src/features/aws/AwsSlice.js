@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-import AwsApi from '../api/AwsApi';
-import { startLoading, loadingFailed } from '../utils/LoadingUtils';
+import AwsApi from 'api/AwsApi';
+import { startLoading, loadingFailed } from 'utils/LoadingUtils';
 
 const Aws = createSlice({
   name: 'Aws',
