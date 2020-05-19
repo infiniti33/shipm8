@@ -4,12 +4,12 @@ import {
   setTokenExpiration,
   gcpClustersSelector,
   gcpLoadingSelector,
-} from './GoogleCloudSlice';
-import AwsApi from '../api/AwsApi';
-import K8sApi from '../api/K8sApi';
-import GoogleCloudApi from '../api/GoogleCloudApi';
-import { awsClustersSelector, awsLoadingSelector } from './AwsSlice';
-import { startLoading, loadingFailed } from '../utils/LoadingUtils';
+} from 'features/gcp/GoogleCloudSlice';
+import AwsApi from 'api/AwsApi';
+import K8sApi from 'api/K8sApi';
+import GoogleCloudApi from 'api/GoogleCloudApi';
+import { awsClustersSelector, awsLoadingSelector } from 'features/aws/AwsSlice';
+import { startLoading, loadingFailed } from 'utils/LoadingUtils';
 
 const Clusters = createSlice({
   name: 'Clusters',

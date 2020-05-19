@@ -11,16 +11,16 @@ import {
   currentProviderSelector,
   currentProviderLoadingSelector,
   clustersForCurrentProviderSelector,
-} from '../../reducers/ClustersSlice';
+} from 'features/clusters/ClustersSlice';
 import {
   fetchGkeClusters,
   fetchGcpProjects,
   gcpProjectsSelector,
-} from '../../reducers/GoogleCloudSlice';
-import Loading from '../common/Loading';
-import Regions from '../../data/Regions';
-import SwipeableList from '../common/SwipeableList';
-import { fetchEksClusters } from '../../reducers/AwsSlice';
+} from 'features/gcp/GoogleCloudSlice';
+import Loading from 'components/Loading';
+import Regions from 'data/Regions';
+import SwipeableList from 'components/SwipeableList';
+import { fetchEksClusters } from 'features/aws/AwsSlice';
 
 const AddCluster = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -103,23 +103,23 @@ const AddCluster = ({ navigation }) => {
             <Loading />
           </ScrollView>
         ) : (
-          <View style={styles.clusterScroll}>
-            {dropdownValue && (
-              <SwipeableList
-                listData={clusters}
-                onRefresh={handleRefresh}
-                onItemPress={handleClusterPress}
-                onDeletePress={null}
-                emptyValue={'Clusters'}
-              />
-            )}
-            {!dropdownValue && (
-              <Text style={styles.noContentText}>
-                {setNoValueSelectedText()}
-              </Text>
-            )}
-          </View>
-        )}
+            <View style={styles.clusterScroll}>
+              {dropdownValue && (
+                <SwipeableList
+                  listData={clusters}
+                  onRefresh={handleRefresh}
+                  onItemPress={handleClusterPress}
+                  onDeletePress={null}
+                  emptyValue={'Clusters'}
+                />
+              )}
+              {!dropdownValue && (
+                <Text style={styles.noContentText}>
+                  {setNoValueSelectedText()}
+                </Text>
+              )}
+            </View>
+          )}
       </SafeAreaView>
     </View>
   );

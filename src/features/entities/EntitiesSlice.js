@@ -1,9 +1,9 @@
 import { createSlice, createSelector } from '@reduxjs/toolkit';
 
-import K8sApi from '../api/K8sApi';
-import AlertUtils from '../utils/AlertUtils';
-import { startLoading, loadingFailed } from '../utils/LoadingUtils';
-import { getAuthToken, currentNamespaceSelector } from './ClustersSlice';
+import K8sApi from 'api/K8sApi';
+import AlertUtils from 'utils/AlertUtils';
+import { startLoading, loadingFailed } from 'utils/LoadingUtils';
+import { getAuthToken, currentNamespaceSelector } from 'features/clusters/ClustersSlice';
 
 const Entities = createSlice({
   name: 'Entities',
@@ -68,7 +68,7 @@ export const currentEntityTypeSelector = state =>
 
 export const entitiesForEntityTypeAndClusterSelector = state =>
   state.entities[
-    state.entities.entities[state.entities.currentEntityTypeIndex].toLowerCase()
+  state.entities.entities[state.entities.currentEntityTypeIndex].toLowerCase()
   ][state.clusters.current];
 
 export const entitiesFilteredByNamespaceSelector = createSelector(

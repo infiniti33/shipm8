@@ -3,13 +3,13 @@ import { useSelector } from 'react-redux';
 import { createStackNavigator } from '@react-navigation/stack';
 import { TransitionPresets } from '@react-navigation/stack';
 
-import PodInfo from '../components/Pods/PodInfo';
-import Loading from '../components/common/Loading';
-import Welcome from '../components/common/Welcome';
-import CloudLogin from '../components/common/CloudLogin';
-import AddCluster from '../components/Clusters/AddCluster';
-import ClustersIndex from '../components/Clusters/ClustersIndex';
-import EntitiesDisplay from '../components/Entities/EntitiesDisplay';
+import PodInfo from 'features/pods/PodInfo';
+import Loading from 'components/Loading';
+import Welcome from 'features/welcome/Welcome';
+import CloudLogin from 'features/login/CloudLogin';
+import AddCluster from 'features/clusters/AddCluster';
+import ClustersIndex from 'features/clusters/ClustersIndex';
+import EntitiesDisplay from 'features/entities/EntitiesDisplay';
 
 const RootStack = createStackNavigator();
 

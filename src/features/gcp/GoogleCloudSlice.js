@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-import GoogleCloudApi from '../api/GoogleCloudApi';
-import { startLoading, loadingFailed } from '../utils/LoadingUtils';
+import GoogleCloudApi from 'api/GoogleCloudApi';
+import { startLoading, loadingFailed } from 'utils/LoadingUtils';
 
 const GoogleCloud = createSlice({
   name: 'GoogleCloud',

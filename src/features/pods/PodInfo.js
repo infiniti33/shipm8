@@ -4,8 +4,8 @@ import { useSelector } from 'react-redux';
 import { Divider } from 'react-native-elements';
 import EStyleSheet from 'react-native-extended-stylesheet';
 
-import EntityStatus from '../common/EntityStatus';
-import { currentEntitySelector } from '../../reducers/EntitiesSlice';
+import EntityStatus from 'components/EntityStatus';
+import { currentEntitySelector } from 'features/entities/EntitiesSlice';
 
 const PodInfo = ({ navigation }) => {
   const currentPod = useSelector(currentEntitySelector);

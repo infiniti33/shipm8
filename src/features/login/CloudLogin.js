@@ -16,9 +16,9 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import EStyleSheet from 'react-native-extended-stylesheet';
 import { GoogleSigninButton } from '@react-native-community/google-signin';
 
-import { checkAwsCredentials } from '../../reducers/AwsSlice';
-import { setCurrentProvider } from '../../reducers/ClustersSlice';
-import { googleSignIn, fetchGcpProjects } from '../../reducers/GoogleCloudSlice';
+import { checkAwsCredentials } from 'features/aws/AwsSlice';
+import { setCurrentProvider } from 'features/clusters/ClustersSlice';
+import { googleSignIn, fetchGcpProjects } from 'features/gcp/GoogleCloudSlice';
 
 Icon.loadFont();
 EStyleSheet.build();

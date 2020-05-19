@@ -13,11 +13,11 @@ import {
   setCurrentProvider,
   currentProviderSelector,
   clustersFilteredByCloudProviderSelector,
-} from '../../reducers/ClustersSlice';
-import AlertUtils from '../../utils/AlertUtils';
-import SwipeableList from '../common/SwipeableList';
-import CloudProviders from '../../data/CloudProviders';
-import { fetchEntities } from '../../reducers/EntitiesSlice';
+} from 'features/clusters/ClustersSlice';
+import AlertUtils from 'utils/AlertUtils';
+import SwipeableList from 'components/SwipeableList';
+import CloudProviders from 'data/CloudProviders';
+import { fetchEntities } from 'features/entities/EntitiesSlice';
 
 const ClustersIndex = ({ navigation }) => {
   const dispatch = useDispatch();

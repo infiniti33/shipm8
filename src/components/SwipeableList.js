@@ -13,9 +13,9 @@ import EStyleSheet from 'react-native-extended-stylesheet';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { SwipeListView, SwipeRow } from 'react-native-swipe-list-view';
 
-import EntityStatus from '../common/EntityStatus';
+import EntityStatus from 'components/EntityStatus';
 
-const iconPod = require('../../assets/pod.png');
+const iconPod = require('assets/pod.png');
 
 const SwipeableList = ({ listData, onItemPress, onDeletePress, onRefresh, emptyValue }) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -90,7 +90,7 @@ const SwipeableList = ({ listData, onItemPress, onDeletePress, onRefresh, emptyV
               ]}
             >
               <Image
-                source={require('../../assets/trash.png')}
+                source={require('assets/trash.png')}
                 style={styles.trash}
               />
             </Animated.View>

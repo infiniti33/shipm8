@@ -14,16 +14,16 @@ import {
   entitiesLoadingSelector,
   currentEntityTypeSelector,
   entitiesFilteredByNamespaceSelector,
-} from '../../reducers/EntitiesSlice';
+} from 'features/entities/EntitiesSlice';
 import {
   setCurrentNamespace,
   currentClusterSelector,
   currentNamespaceSelector,
-} from '../../reducers/ClustersSlice';
-import Loading from '../common/Loading';
-import AlertUtils from '../../utils/AlertUtils';
-import SegmentedTabs from '../common/SegmentedTabs';
-import SwipeableList from '../common/SwipeableList';
+} from 'features/clusters/ClustersSlice';
+import Loading from 'components/Loading';
+import AlertUtils from 'utils/AlertUtils';
+import SegmentedTabs from 'components/SegmentedTabs';
+import SwipeableList from 'components/SwipeableList';
 
 const EntitiesDisplay = ({ navigation, route }) => {
   navigation.setOptions({
@@ -114,14 +114,14 @@ const EntitiesDisplay = ({ navigation, route }) => {
             <Loading />
           </ScrollView>
         ) : (
-          <SwipeableList
-            listData={entities}
-            onItemPress={handleEntityPress}
-            onDeletePress={handleDeletePress}
-            onRefresh={handleRefresh}
-            emptyValue={`${entityType}`}
-          />
-        )}
+            <SwipeableList
+              listData={entities}
+              onItemPress={handleEntityPress}
+              onDeletePress={handleDeletePress}
+              onRefresh={handleRefresh}
+              emptyValue={`${entityType}`}
+            />
+          )}
       </View>
     </SafeAreaView>
   );
