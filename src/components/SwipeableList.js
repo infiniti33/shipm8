@@ -13,18 +13,22 @@ import EStyleSheet from 'react-native-extended-stylesheet';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { SwipeListView, SwipeRow } from 'react-native-swipe-list-view';
 
-import EntityStatus from '../common/EntityStatus';
+import EntityStatus from 'components/EntityStatus';
 
-const iconPod = require('../../assets/pod.png');
+const iconPod = require('assets/pod.png');
 
-const SwipeableList = ({ listData, onItemPress, onDeletePress, onRefresh, emptyValue }) => {
+const SwipeableList = ({
+  listData,
+  onItemPress,
+  onDeletePress,
+  onRefresh,
+  emptyValue,
+}) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const rowSwipeAnimatedValues = {};
 
-  listData.forEach(item => {
-    const name = item.name
-      ? item.name
-      : item.metadata.name;
+  listData.forEach((item) => {
+    const name = item.name ? item.name : item.metadata.name;
     rowSwipeAnimatedValues[`${name}`] = new Animated.Value(0);
   });
 
@@ -36,103 +40,103 @@ const SwipeableList = ({ listData, onItemPress, onDeletePress, onRefresh, emptyV
     }
   }, [onRefresh]);
 
-  const onSwipeValueChange = useCallback(swipeData => {
-    const { key, value } = swipeData;
-    rowSwipeAnimatedValues[key].setValue(Math.abs(value));
-  }, [rowSwipeAnimatedValues]);
+  const onSwipeValueChange = useCallback(
+    (swipeData) => {
+      const { key, value } = swipeData;
+      rowSwipeAnimatedValues[key].setValue(Math.abs(value));
+    },
+    [rowSwipeAnimatedValues]
+  );
 
-  const renderItem = useCallback(data => {
-    const status = typeof data.item.status === 'string'
-      ? data.item.status
-      : data.item.status.phase
-        ? data.item.status.phase
-        : false;
+  const renderItem = useCallback(
+    (data) => {
+      const status =
+        typeof data.item.status === 'string'
+          ? data.item.status
+          : data.item.status.phase
+          ? data.item.status.phase
+          : false;
 
-    const name = data.item.name
-      ? data.item.name
-      : data.item.metadata.name;
+      const name = data.item.name ? data.item.name : data.item.metadata.name;
 
-    return (
-      <SwipeRow
-        style={styles.btnContainer}
-        disableRightSwipe
-        rightOpenValue={-75}
-        // rightOpenValue={-Dimensions.get('window').width} /** will be used if swipe to delete is implemented */
-        friction={10}
-        swipeKey={name}
-        onSwipeValueChange={onSwipeValueChange}
-      >
-        {onDeletePress && (
-          <TouchableOpacity
-            onPress={() => onDeletePress(data.item)}
-            style={[styles.listItemButton, styles.backRightBtn]}
-          >
-            <Animated.View
-              style={[
-                styles.trash,
-                {
-                  transform: [
-                    {
-                      scale: rowSwipeAnimatedValues[
-                        name
-                      ].interpolate({
-                        inputRange: [
-                          0,
-                          75,
-                        ],
-                        outputRange: [0, 1],
-                        extrapolate:
-                          'clamp',
-                      }),
-                    },
-                  ],
-                },
-              ]}
-            >
-              <Image
-                source={require('../../assets/trash.png')}
-                style={styles.trash}
-              />
-            </Animated.View>
-          </TouchableOpacity>
-        )}
-        <TouchableHighlight
-          style={styles.listItemButton}
-          underlayColor={'#AAA'}
-          onPress={() => onItemPress(data.item)}
-          key={name}
-        >
-          <View style={styles.itemContainer}>
-            <View style={status ? styles.containerLeft : styles.containerLeftNoStatus}>
-              {data.item.kind === 'pods' && <Image style={styles.itemIcon} source={iconPod} />}
-              <Text style={styles.itemText} numberOfLines={1}>{name}</Text>
+      return (
+        <SwipeRow
+          style={styles.btnContainer}
+          disableRightSwipe
+          rightOpenValue={-75}
+          // rightOpenValue={-Dimensions.get('window').width} /** will be used if swipe to delete is implemented */
+          friction={10}
+          swipeKey={name}
+          onSwipeValueChange={onSwipeValueChange}>
+          {onDeletePress && (
+            <TouchableOpacity
+              onPress={() => onDeletePress(data.item)}
+              style={[styles.listItemButton, styles.backRightBtn]}>
+              <Animated.View
+                style={[
+                  styles.trash,
+                  {
+                    transform: [
+                      {
+                        scale: rowSwipeAnimatedValues[name].interpolate({
+                          inputRange: [0, 75],
+                          outputRange: [0, 1],
+                          extrapolate: 'clamp',
+                        }),
+                      },
+                    ],
+                  },
+                ]}>
+                <Image
+                  source={require('assets/trash.png')}
+                  style={styles.trash}
+                />
+              </Animated.View>
+            </TouchableOpacity>
+          )}
+          <TouchableHighlight
+            style={styles.listItemButton}
+            underlayColor={'#AAA'}
+            onPress={() => onItemPress(data.item)}
+            key={name}>
+            <View style={styles.itemContainer}>
+              <View
+                style={
+                  status ? styles.containerLeft : styles.containerLeftNoStatus
+                }>
+                {data.item.kind === 'pods' && (
+                  <Image style={styles.itemIcon} source={iconPod} />
+                )}
+                <Text style={styles.itemText} numberOfLines={1}>
+                  {name}
+                </Text>
+              </View>
+              <View style={styles.containerRight}>
+                <EntityStatus status={status} />
+                <Icon
+                  name="chevron-right"
+                  size={15}
+                  color="gray"
+                  style={styles.arrow}
+                />
+              </View>
             </View>
-            <View style={styles.containerRight}>
-              <EntityStatus status={status} />
-              <Icon
-                name="chevron-right"
-                size={15}
-                color="gray"
-                style={styles.arrow}
-              />
-            </View>
-          </View>
-        </TouchableHighlight>
-      </SwipeRow>
-    );
-  }, [onDeletePress, onItemPress, onSwipeValueChange, rowSwipeAnimatedValues]);
+          </TouchableHighlight>
+        </SwipeRow>
+      );
+    },
+    [onDeletePress, onItemPress, onSwipeValueChange, rowSwipeAnimatedValues]
+  );
 
   if (listData.length === 0) {
     return (
       <ScrollView
         refreshControl={
-          <RefreshControl
-            refreshing={isRefreshing}
-            onRefresh={handleRefresh}
-          />
-        }
-      >
-        <Text style={styles.noContentText}>No {`${emptyValue || 'Items'}`} Found</Text>
+          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
+        }>
+        <Text style={styles.noContentText}>
+          No {`${emptyValue || 'Items'}`} Found
+        </Text>
       </ScrollView>
     );
   }
@@ -142,12 +146,9 @@ const SwipeableList = ({ listData, onItemPress, onDeletePress, onRefresh, emptyV
       data={listData}
       renderItem={renderItem}
       refreshControl={
-        <RefreshControl
-          refreshing={isRefreshing}
-          onRefresh={handleRefresh}
-        />
+        <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
       }
-      keyExtractor={item => item.name || item.metadata.name}
+      keyExtractor={(item) => item.name || item.metadata.name}
     />
   );
 };

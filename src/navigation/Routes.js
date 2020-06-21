@@ -3,13 +3,13 @@ import { useSelector } from 'react-redux';
 import { createStackNavigator } from '@react-navigation/stack';
 import { TransitionPresets } from '@react-navigation/stack';
 
-import PodInfo from '../components/Pods/PodInfo';
-import Loading from '../components/common/Loading';
-import Welcome from '../components/common/Welcome';
-import CloudLogin from '../components/common/CloudLogin';
-import AddCluster from '../components/Clusters/AddCluster';
-import ClustersIndex from '../components/Clusters/ClustersIndex';
-import EntitiesDisplay from '../components/Entities/EntitiesDisplay';
+import PodInfo from 'screens/PodInfo';
+import Loading from 'components/Loading';
+import Welcome from 'screens/Welcome';
+import CloudLogin from 'screens/CloudLogin';
+import AddCluster from 'screens/AddCluster';
+import ClustersIndex from 'screens/ClustersIndex';
+import EntitiesDisplay from 'screens/EntitiesDisplay';
 
 const RootStack = createStackNavigator();
 
@@ -20,9 +20,9 @@ const forFade = ({ current }) => ({
 });
 
 const RootStackScreen = ({ navigation, route }) => {
-  const isReady = useSelector(state => state.clusters.isReady);
-  const gcpSignedIn = useSelector(state => state.gcp.user !== null);
-  const awsSignedIn = useSelector(state => state.aws.credentials !== null);
+  const isReady = useSelector((state) => state.clusters.isReady);
+  const gcpSignedIn = useSelector((state) => state.gcp.user !== null);
+  const awsSignedIn = useSelector((state) => state.aws.credentials !== null);
 
   const INITIAL_ROUTE_NAME = awsSignedIn || gcpSignedIn ? 'ShipM8' : 'Welcome';
 

@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-import AwsApi from '../api/AwsApi';
-import { startLoading, loadingFailed } from '../utils/LoadingUtils';
+import AwsApi from 'api/AwsApi';
+import { startLoading, loadingFailed } from 'utils/LoadingUtils';
 
 const Aws = createSlice({
   name: 'Aws',
@@ -46,12 +46,12 @@ export const {
 export default Aws.reducer;
 
 // Selectors
-export const awsLoadingSelector = state => state.aws.isLoading;
+export const awsLoadingSelector = (state) => state.aws.isLoading;
 
-export const awsClustersSelector = state => state.aws.clusters;
+export const awsClustersSelector = (state) => state.aws.clusters;
 
 // Thunks
-export const checkAwsCredentials = credentials => async dispatch => {
+export const checkAwsCredentials = (credentials) => async (dispatch) => {
   try {
     dispatch(checkAwsCredentialsStart());
     const data = await AwsApi.fetchEksClusterNames('us-west-2', credentials);
@@ -68,14 +68,14 @@ export const checkAwsCredentials = credentials => async dispatch => {
   }
 };
 
-export const fetchEksClusters = region => async (dispatch, getState) => {
+export const fetchEksClusters = (region) => async (dispatch, getState) => {
   try {
     dispatch(fetchEksClustersStart());
     const state = getState();
     const AwsCredentials = state.aws.credentials;
     const clusters = await AwsApi.describeAllEksClusters(
       region,
-      AwsCredentials,
+      AwsCredentials
     );
     dispatch(fetchEksClustersSuccess(clusters));
     return Promise.resolve();

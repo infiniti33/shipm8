@@ -1,9 +1,9 @@
 import { createSlice, createSelector } from '@reduxjs/toolkit';
 
-import K8sApi from '../api/K8sApi';
-import AlertUtils from '../utils/AlertUtils';
-import { startLoading, loadingFailed } from '../utils/LoadingUtils';
-import { getAuthToken, currentNamespaceSelector } from './ClustersSlice';
+import K8sApi from 'api/K8sApi';
+import AlertUtils from 'utils/AlertUtils';
+import { startLoading, loadingFailed } from 'utils/LoadingUtils';
+import { getAuthToken, currentNamespaceSelector } from 'reducers/ClustersSlice';
 
 const Entities = createSlice({
   name: 'Entities',
@@ -56,17 +56,17 @@ export const {
 export default Entities.reducer;
 
 // Selectors
-export const allEntitiesTypesSelector = state => state.entities.entities;
+export const allEntitiesTypesSelector = (state) => state.entities.entities;
 
-export const currentEntitySelector = state => state.entities.current;
+export const currentEntitySelector = (state) => state.entities.current;
 
-export const currentEntityTypeIndexSelector = state =>
+export const currentEntityTypeIndexSelector = (state) =>
   state.entities.currentEntityTypeIndex;
 
-export const currentEntityTypeSelector = state =>
+export const currentEntityTypeSelector = (state) =>
   state.entities.entities[state.entities.currentEntityTypeIndex].toLowerCase();
 
-export const entitiesForEntityTypeAndClusterSelector = state =>
+export const entitiesForEntityTypeAndClusterSelector = (state) =>
   state.entities[
     state.entities.entities[state.entities.currentEntityTypeIndex].toLowerCase()
   ][state.clusters.current];
@@ -76,7 +76,7 @@ export const entitiesFilteredByNamespaceSelector = createSelector(
   entitiesForEntityTypeAndClusterSelector,
   (namespace, entities) => {
     if (entities) {
-      return Object.values(entities).filter(entity => {
+      return Object.values(entities).filter((entity) => {
         if (!namespace || namespace === 'All Namespaces') {
           return true;
         }
@@ -84,15 +84,15 @@ export const entitiesFilteredByNamespaceSelector = createSelector(
       });
     }
     return [];
-  },
+  }
 );
 
-export const entitiesLoadingSelector = state => state.entities.isLoading;
+export const entitiesLoadingSelector = (state) => state.entities.isLoading;
 
 // Thunks
 export const fetchEntities = ({ clusterUrl, entityType }) => async (
   dispatch,
-  getState,
+  getState
 ) => {
   try {
     const state = getState();
@@ -104,7 +104,7 @@ export const fetchEntities = ({ clusterUrl, entityType }) => async (
       entityType,
     });
     const entities = {};
-    response.items.forEach(entity => {
+    response.items.forEach((entity) => {
       entity.kind = entityType;
       entities[entity.metadata.uid] = entity;
     });
@@ -115,11 +115,9 @@ export const fetchEntities = ({ clusterUrl, entityType }) => async (
   }
 };
 
-export const deleteEntity = ({
-  cluster,
-  entity,
-  entityType,
-}) => async dispatch => {
+export const deleteEntity = ({ cluster, entity, entityType }) => async (
+  dispatch
+) => {
   try {
     dispatch(deleteEntityStart());
     const clusterWithAuth = await dispatch(getAuthToken(cluster));

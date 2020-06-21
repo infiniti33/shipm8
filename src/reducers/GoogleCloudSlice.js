@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-import GoogleCloudApi from '../api/GoogleCloudApi';
-import { startLoading, loadingFailed } from '../utils/LoadingUtils';
+import GoogleCloudApi from 'api/GoogleCloudApi';
+import { startLoading, loadingFailed } from 'utils/LoadingUtils';
 
 const GoogleCloud = createSlice({
   name: 'GoogleCloud',
@@ -77,9 +77,9 @@ export const {
 export default GoogleCloud.reducer;
 
 // Selectors
-export const gcpProjectsSelector = state => {
+export const gcpProjectsSelector = (state) => {
   if (state.gcp.projects) {
-    return state.gcp.projects.map(project => {
+    return state.gcp.projects.map((project) => {
       return {
         label: project.name,
         value: project.projectId,
@@ -89,12 +89,12 @@ export const gcpProjectsSelector = state => {
   return null;
 };
 
-export const gcpClustersSelector = state => state.gcp.clusters;
+export const gcpClustersSelector = (state) => state.gcp.clusters;
 
-export const gcpLoadingSelector = state => state.gcp.isLoading;
+export const gcpLoadingSelector = (state) => state.gcp.isLoading;
 
 // Thunks
-export const googleSignIn = () => async dispatch => {
+export const googleSignIn = () => async (dispatch) => {
   try {
     dispatch(googleSignInStart());
     const user = await GoogleCloudApi.signIn();
@@ -110,7 +110,7 @@ export const googleSignIn = () => async dispatch => {
   }
 };
 
-export const googleSignOut = () => async dispatch => {
+export const googleSignOut = () => async (dispatch) => {
   try {
     dispatch(googleSignOutStart());
     await GoogleCloudApi.signOut();
@@ -124,7 +124,7 @@ export const googleSignOut = () => async dispatch => {
 
 export const fetchGkeClusters = (projectId, zone) => async (
   dispatch,
-  getState,
+  getState
 ) => {
   try {
     const state = getState();
@@ -143,7 +143,7 @@ export const fetchGkeClusters = (projectId, zone) => async (
   }
 };
 
-export const fetchGcpProjects = pageToken => async (dispatch, getState) => {
+export const fetchGcpProjects = (pageToken) => async (dispatch, getState) => {
   try {
     const state = getState();
     dispatch(fetchGcpProjectsStart());
@@ -169,7 +169,7 @@ export const fetchGcpProjects = pageToken => async (dispatch, getState) => {
 
 export const fetchGcpZones = (projectId, pageToken) => async (
   dispatch,
-  getState,
+  getState
 ) => {
   try {
     dispatch(fetchGcpZonesStart());

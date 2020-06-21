@@ -11,16 +11,16 @@ import {
   currentProviderSelector,
   currentProviderLoadingSelector,
   clustersForCurrentProviderSelector,
-} from '../../reducers/ClustersSlice';
+} from 'reducers/ClustersSlice';
 import {
   fetchGkeClusters,
   fetchGcpProjects,
   gcpProjectsSelector,
-} from '../../reducers/GoogleCloudSlice';
-import Loading from '../common/Loading';
-import Regions from '../../data/Regions';
-import SwipeableList from '../common/SwipeableList';
-import { fetchEksClusters } from '../../reducers/AwsSlice';
+} from 'reducers/GoogleCloudSlice';
+import Regions from 'data/Regions';
+import Loading from 'components/Loading';
+import { fetchEksClusters } from 'reducers/AwsSlice';
+import SwipeableList from 'components/SwipeableList';
 
 const AddCluster = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -37,7 +37,7 @@ const AddCluster = ({ navigation }) => {
     currentProvider === 'gcp' && dispatch(fetchGcpProjects());
   }, [currentProvider, dispatch]);
 
-  const fetchClusters = async value => {
+  const fetchClusters = async (value) => {
     if (!value) {
       value = dropdownValue;
     }
@@ -47,13 +47,13 @@ const AddCluster = ({ navigation }) => {
   };
 
   const handleClusterPress = useCallback(
-    cluster => {
+    (cluster) => {
       dispatch(addCluster(cluster));
       dispatch(fetchNamespaces(cluster));
       dispatch(setCurrentProvider(cluster.cloudProvider));
       navigation.goBack();
     },
-    [dispatch, navigation],
+    [dispatch, navigation]
   );
 
   const handleRefresh = async () => {
@@ -62,7 +62,7 @@ const AddCluster = ({ navigation }) => {
     setIsRefreshing(false);
   };
 
-  const handleDropdownChange = value => {
+  const handleDropdownChange = (value) => {
     setDropdownValue(value);
     fetchClusters(value);
   };

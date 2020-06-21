@@ -13,11 +13,11 @@ import {
   setCurrentProvider,
   currentProviderSelector,
   clustersFilteredByCloudProviderSelector,
-} from '../../reducers/ClustersSlice';
-import AlertUtils from '../../utils/AlertUtils';
-import SwipeableList from '../common/SwipeableList';
-import CloudProviders from '../../data/CloudProviders';
-import { fetchEntities } from '../../reducers/EntitiesSlice';
+} from 'reducers/ClustersSlice';
+import AlertUtils from 'utils/AlertUtils';
+import SwipeableList from 'components/SwipeableList';
+import CloudProviders from 'data/CloudProviders';
+import { fetchEntities } from 'reducers/EntitiesSlice';
 
 const ClustersIndex = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -31,7 +31,7 @@ const ClustersIndex = ({ navigation }) => {
 
   useEffect(() => {
     dispatch(checkClusters());
-    clustersRef.current.forEach(cluster => {
+    clustersRef.current.forEach((cluster) => {
       const clusterUrl = cluster.url;
       dispatch(fetchEntities({ clusterUrl, entityType: 'pods' }));
       dispatch(fetchEntities({ clusterUrl, entityType: 'services' }));
@@ -39,28 +39,28 @@ const ClustersIndex = ({ navigation }) => {
   }, [dispatch]);
 
   const handleProviderChange = useCallback(
-    provider => {
+    (provider) => {
       dispatch(setCurrentProvider(provider));
     },
-    [dispatch],
+    [dispatch]
   );
 
   const handleClusterPress = useCallback(
-    cluster => {
+    (cluster) => {
       dispatch(setCurrentCluster(cluster));
       dispatch(fetchNamespaces(cluster));
       navigation.navigate('Entities', { title: cluster.name });
     },
-    [dispatch, navigation],
+    [dispatch, navigation]
   );
 
   const handleDeletePress = useCallback(
-    cluster => {
+    (cluster) => {
       AlertUtils.deleteEntityPrompt(cluster.name, () =>
-        dispatch(removeCluster(cluster)),
+        dispatch(removeCluster(cluster))
       );
     },
-    [dispatch],
+    [dispatch]
   );
 
   const handleRefresh = useCallback(async () => {

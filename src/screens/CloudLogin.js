@@ -16,9 +16,9 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import EStyleSheet from 'react-native-extended-stylesheet';
 import { GoogleSigninButton } from '@react-native-community/google-signin';
 
-import { checkAwsCredentials } from '../../reducers/AwsSlice';
-import { setCurrentProvider } from '../../reducers/ClustersSlice';
-import { googleSignIn, fetchGcpProjects } from '../../reducers/GoogleCloudSlice';
+import { checkAwsCredentials } from 'reducers/AwsSlice';
+import { setCurrentProvider } from 'reducers/ClustersSlice';
+import { googleSignIn, fetchGcpProjects } from 'reducers/GoogleCloudSlice';
 
 Icon.loadFont();
 EStyleSheet.build();
@@ -42,10 +42,16 @@ const CloudLogin = ({ navigation, route }) => {
         dispatch(setCurrentProvider('aws'));
         navigation.navigate('Add Cluster');
       } else {
-        Alert.alert('Invalid Credentials', 'Please enter valid access keys and ensure you have correct permissions.');
+        Alert.alert(
+          'Invalid Credentials',
+          'Please enter valid access keys and ensure you have correct permissions.'
+        );
       }
     } else {
-      Alert.alert('Invalid Entry', 'Please enter Access Key ID and Secret Access Key.');
+      Alert.alert(
+        'Invalid Entry',
+        'Please enter Access Key ID and Secret Access Key.'
+      );
     }
   };
 
@@ -74,7 +80,7 @@ const CloudLogin = ({ navigation, route }) => {
         <Text style={styles.textStyle}>Add Cluster from Cloud Provider</Text>
         <View style={styles.googleLogoContainer}>
           <Image
-            source={require('../../assets/google.png')}
+            source={require('assets/google.png')}
             style={styles.googleLogo}
           />
         </View>
@@ -89,24 +95,29 @@ const CloudLogin = ({ navigation, route }) => {
           <Divider />
         </View>
         <View style={styles.awsLogoContainer}>
-          <Image source={require('../../assets/aws_logo.png')} style={styles.awsLogo} />
+          <Image
+            source={require('assets/aws_logo.png')}
+            style={styles.awsLogo}
+          />
         </View>
         <View style={styles.awsInputView}>
           <View style={styles.accessKeyIdInput}>
             <Input
               style={styles.accessKeyIdInput}
-              onChangeText={text =>
+              onChangeText={(text) =>
                 setLoginState({ ...loginState, accessKeyId: text })
               }
               label="Access Key ID"
               placeholder="Enter Access Key ID Here"
-              leftIcon={<Icon name="chevron-right" size={24} style={styles.icon} />}
+              leftIcon={
+                <Icon name="chevron-right" size={24} style={styles.icon} />
+              }
             />
           </View>
-          <View style={styles.secretAccessKeyIdInput} >
+          <View style={styles.secretAccessKeyIdInput}>
             <Input
               style={styles.secretAccessKeyIdInput}
-              onChangeText={text =>
+              onChangeText={(text) =>
                 setLoginState({ ...loginState, secretAccessKey: text })
               }
               label="Secret Access Key"
@@ -115,7 +126,7 @@ const CloudLogin = ({ navigation, route }) => {
             />
           </View>
         </View>
-        <View style={styles.awsButtonContainer} >
+        <View style={styles.awsButtonContainer}>
           <TouchableHighlight
             style={styles.awsButton}
             underlayColor={'#1621CF'}
@@ -124,7 +135,7 @@ const CloudLogin = ({ navigation, route }) => {
           </TouchableHighlight>
         </View>
       </View>
-    </KeyboardAvoidingView >
+    </KeyboardAvoidingView>
   );
 };
 
@@ -180,12 +191,12 @@ const styles = EStyleSheet.create({
   },
   accessKeyIdInput: {
     flex: 1,
-    width: width - (0.15 * width),
+    width: width - 0.15 * width,
     paddingBottom: '1.5rem',
   },
   secretAccessKeyIdInput: {
     flex: 1,
-    width: width - (0.15 * width),
+    width: width - 0.15 * width,
     paddingTop: '1rem',
   },
   awsButtonContainer: {

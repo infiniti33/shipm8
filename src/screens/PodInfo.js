@@ -4,8 +4,8 @@ import { useSelector } from 'react-redux';
 import { Divider } from 'react-native-elements';
 import EStyleSheet from 'react-native-extended-stylesheet';
 
-import EntityStatus from '../common/EntityStatus';
-import { currentEntitySelector } from '../../reducers/EntitiesSlice';
+import EntityStatus from 'components/EntityStatus';
+import { currentEntitySelector } from 'reducers/EntitiesSlice';
 
 const PodInfo = ({ navigation }) => {
   const currentPod = useSelector(currentEntitySelector);
@@ -15,10 +15,7 @@ const PodInfo = ({ navigation }) => {
       <ScrollView style={styles.podScroll}>
         <View style={styles.outerTextView}>
           <View style={styles.innerTextView}>
-            <Image
-              source={require('../../assets/pod.png')}
-              style={styles.podLogo}
-            />
+            <Image source={require('assets/pod.png')} style={styles.podLogo} />
             <View style={{ flexDirection: 'column' }}>
               <Text style={styles.text} numberOfLines={2}>
                 Name:{' '}
@@ -61,7 +58,7 @@ const PodInfo = ({ navigation }) => {
                 Labels:{' '}
                 <Text style={styles.innerText}>
                   {Object.keys(currentPod.metadata.labels).length > 0 &&
-                    Object.keys(currentPod.metadata.labels).map(label => {
+                    Object.keys(currentPod.metadata.labels).map((label) => {
                       return `${label}:${currentPod.metadata.labels[label]}`;
                     })}
                 </Text>{' '}

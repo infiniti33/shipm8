@@ -8,18 +8,18 @@ const Welcome = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.innerContainer}>
-        <Image source={require('../../assets/shipm8.png')} style={styles.logo} />
+        <Image source={require('assets/shipm8.png')} style={styles.logo} />
         <Text style={styles.bannerLineOne}>Mobile Kubernetes Monitoring</Text>
         <View style={styles.cloudLogoContainer}>
           <Image
             style={styles.googleCloud}
-            source={require('../../assets/googleCloud.png')}
+            source={require('assets/googleCloud.png')}
           />
           <Text style={styles.textStyle}>+</Text>
           <View style={styles.awsLogoContainer}>
             <Image
               style={styles.awsLogo}
-              source={require('../../assets/aws_logo.png')}
+              source={require('assets/aws_logo.png')}
               resizeMode="contain"
             />
           </View>
@@ -32,7 +32,7 @@ const Welcome = ({ navigation }) => {
               routes: [{ name: 'Cloud Login' }],
             });
           }}>
-          <View >
+          <View>
             <Text style={styles.getStartedText}>Get Started</Text>
           </View>
         </TouchableOpacity>

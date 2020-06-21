@@ -14,16 +14,16 @@ import {
   entitiesLoadingSelector,
   currentEntityTypeSelector,
   entitiesFilteredByNamespaceSelector,
-} from '../../reducers/EntitiesSlice';
+} from 'reducers/EntitiesSlice';
 import {
   setCurrentNamespace,
   currentClusterSelector,
   currentNamespaceSelector,
-} from '../../reducers/ClustersSlice';
-import Loading from '../common/Loading';
-import AlertUtils from '../../utils/AlertUtils';
-import SegmentedTabs from '../common/SegmentedTabs';
-import SwipeableList from '../common/SwipeableList';
+} from 'reducers/ClustersSlice';
+import Loading from 'components/Loading';
+import AlertUtils from 'utils/AlertUtils';
+import SegmentedTabs from 'components/SegmentedTabs';
+import SwipeableList from 'components/SwipeableList';
 
 const EntitiesDisplay = ({ navigation, route }) => {
   navigation.setOptions({
@@ -48,29 +48,29 @@ const EntitiesDisplay = ({ navigation, route }) => {
   }, [entityType, dispatch, cluster.url]);
 
   const handleNamespaceChange = useCallback(
-    namespace => {
+    (namespace) => {
       if (namespace !== currentNamespace) {
         dispatch(setCurrentNamespace({ cluster, namespace }));
       }
     },
-    [cluster, currentNamespace, dispatch],
+    [cluster, currentNamespace, dispatch]
   );
 
   const handleEntityPress = useCallback(
-    entity => {
+    (entity) => {
       dispatch(setCurrentEntity(entity));
       navigation.navigate('Pod Details');
     },
-    [dispatch, navigation],
+    [dispatch, navigation]
   );
 
   const handleDeletePress = useCallback(
-    entity => {
+    (entity) => {
       AlertUtils.deleteEntityPrompt(entity, () =>
-        dispatch(deleteEntity({ cluster, entity, entityType })),
+        dispatch(deleteEntity({ cluster, entity, entityType }))
       );
     },
-    [cluster, entityType, dispatch],
+    [cluster, entityType, dispatch]
   );
 
   const handleRefresh = useCallback(async () => {
@@ -79,8 +79,8 @@ const EntitiesDisplay = ({ navigation, route }) => {
     setIsRefreshing(false);
   }, [cluster, entityType, dispatch]);
 
-  const createNamespaceList = namespaces => {
-    const namespaceList = namespaces.map(namespace => {
+  const createNamespaceList = (namespaces) => {
+    const namespaceList = namespaces.map((namespace) => {
       return { value: namespace };
     });
     return [{ value: 'All Namespaces' }, ...namespaceList];
@@ -89,7 +89,7 @@ const EntitiesDisplay = ({ navigation, route }) => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <SegmentedTabs
-        onTabPress={idx => dispatch(setCurrentEntityTypeIndex(idx))}
+        onTabPress={(idx) => dispatch(setCurrentEntityTypeIndex(idx))}
         tabs={tabs}
         activeTabIndex={activeTabIndex}
       />

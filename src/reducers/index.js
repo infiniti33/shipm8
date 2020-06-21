@@ -3,10 +3,10 @@ import { persistReducer } from 'redux-persist';
 import AsyncStorage from '@react-native-community/async-storage';
 import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
 
-import awsReducer from './AwsSlice';
-import gcpReducer from './GoogleCloudSlice';
-import entitiesReducer from './EntitiesSlice';
-import clustersReducer from './ClustersSlice';
+import awsReducer from 'reducers/AwsSlice';
+import gcpReducer from 'reducers/GoogleCloudSlice';
+import entitiesReducer from 'reducers/EntitiesSlice';
+import clustersReducer from 'reducers/ClustersSlice';
 
 const awsPersistConfig = {
   key: 'aws',

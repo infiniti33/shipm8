@@ -4,12 +4,12 @@ import {
   setTokenExpiration,
   gcpClustersSelector,
   gcpLoadingSelector,
-} from './GoogleCloudSlice';
-import AwsApi from '../api/AwsApi';
-import K8sApi from '../api/K8sApi';
-import GoogleCloudApi from '../api/GoogleCloudApi';
-import { awsClustersSelector, awsLoadingSelector } from './AwsSlice';
-import { startLoading, loadingFailed } from '../utils/LoadingUtils';
+} from 'reducers/GoogleCloudSlice';
+import AwsApi from 'api/AwsApi';
+import K8sApi from 'api/K8sApi';
+import GoogleCloudApi from 'api/GoogleCloudApi';
+import { startLoading, loadingFailed } from 'utils/LoadingUtils';
+import { awsClustersSelector, awsLoadingSelector } from 'reducers/AwsSlice';
 
 const Clusters = createSlice({
   name: 'Clusters',
@@ -97,15 +97,16 @@ export const {
 export default Clusters.reducer;
 
 // Selectors
-export const allClustersSelector = state => state.clusters.byUrl;
+export const allClustersSelector = (state) => state.clusters.byUrl;
 
-export const currentClusterSelector = state =>
+export const currentClusterSelector = (state) =>
   state.clusters.byUrl[state.clusters.current];
 
-export const currentNamespaceSelector = state =>
+export const currentNamespaceSelector = (state) =>
   state.clusters.byUrl[state.clusters.current].currentNamespace;
 
-export const currentProviderSelector = state => state.clusters.currentProvider;
+export const currentProviderSelector = (state) =>
+  state.clusters.currentProvider;
 
 export const currentProviderLoadingSelector = createSelector(
   currentProviderSelector,
@@ -118,7 +119,7 @@ export const currentProviderLoadingSelector = createSelector(
     if (provider === 'gcp') {
       return gcpLoading;
     }
-  },
+  }
 );
 
 export const clustersForCurrentProviderSelector = createSelector(
@@ -133,7 +134,7 @@ export const clustersForCurrentProviderSelector = createSelector(
       return gcpClusters;
     }
     return [];
-  },
+  }
 );
 
 export const clustersFilteredByCloudProviderSelector = createSelector(
@@ -141,9 +142,9 @@ export const clustersFilteredByCloudProviderSelector = createSelector(
   allClustersSelector,
   (cloudProvider, clusters) => {
     return Object.values(clusters).filter(
-      cluster => cluster.cloudProvider === cloudProvider,
+      (cluster) => cluster.cloudProvider === cloudProvider
     );
-  },
+  }
 );
 
 // Thunks
@@ -151,20 +152,20 @@ export const checkClusters = () => async (dispatch, getState) => {
   const state = getState();
   const clusters = Object.values(state.clusters.byUrl);
   return Promise.all(
-    clusters.map(cluster => {
+    clusters.map((cluster) => {
       return dispatch(checkCluster(cluster));
-    }),
+    })
   );
 };
 
-export const checkCluster = cluster => async dispatch => {
+export const checkCluster = (cluster) => async (dispatch) => {
   dispatch(checkClusterStart(cluster));
   const { up, response } = await K8sApi.checkCluster(cluster);
   dispatch(checkClusterSuccess({ cluster, up, response }));
   return Promise.resolve();
 };
 
-export const fetchNamespaces = cluster => async dispatch => {
+export const fetchNamespaces = (cluster) => async (dispatch) => {
   try {
     dispatch(fetchNamespacesStart());
     const clusterWithToken = await dispatch(getAuthToken(cluster));
@@ -176,7 +177,7 @@ export const fetchNamespaces = cluster => async dispatch => {
   }
 };
 
-export const getAuthToken = cluster => async (dispatch, getState) => {
+export const getAuthToken = (cluster) => async (dispatch, getState) => {
   try {
     let state = getState();
     let token;
@@ -193,7 +194,7 @@ export const getAuthToken = cluster => async (dispatch, getState) => {
       ) {
         // Fetch new token and reset expiration
         token = await GoogleCloudApi.refreshAccessToken(
-          state.gcp.user.refreshToken,
+          state.gcp.user.refreshToken
         );
         dispatch(setTokenExpiration(Date.now() + 3600 * 1000));
       } else {

@@ -3,10 +3,12 @@ import { View, Text } from 'react-native';
 import { Badge } from 'react-native-elements';
 import EStyleSheet from 'react-native-extended-stylesheet';
 
-import StatusUtils from '../../utils/StatusUtils';
+import StatusUtils from 'utils/StatusUtils';
 
 const EntityStatus = ({ status }) => {
-  if (typeof status !== 'string') { return false; }
+  if (typeof status !== 'string') {
+    return false;
+  }
   const badgeStatusText = status.toUpperCase();
   const statusText = status[0].toUpperCase() + status.slice(1).toLowerCase();
 
